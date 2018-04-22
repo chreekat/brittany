@@ -147,7 +147,7 @@ transformAlts =
                 BrIndentRegular -> indAmount
                 BrIndentSpecial i -> i
           let indAdd' =
-                max 0 (indAdd - (_acp_indent acp + indAdd `mod` indAmount))
+                max 0 (indAdd - ((_acp_indent acp + indAdd) `mod` indAmount))
           mSet $ acp { _acp_indentPrep = max (_acp_indentPrep acp) indAdd' }
           r <- rec bd
           acp' <- mGet
