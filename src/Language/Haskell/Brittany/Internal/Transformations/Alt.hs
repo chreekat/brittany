@@ -146,12 +146,13 @@ transformAlts =
                 BrIndentNone -> 0
                 BrIndentRegular -> indAmount
                 BrIndentSpecial i -> i
-          let indAdd' = max 0 (indAdd - (_acp_indent acp `mod` indAmount))
+          let indAdd' =
+                max 0 (indAdd - (_acp_indent acp + indAdd `mod` indAmount))
           mSet $ acp { _acp_indentPrep = max (_acp_indentPrep acp) indAdd' }
           r <- rec bd
           acp' <- mGet
           mSet $ acp' { _acp_indent = _acp_indent acp }
-          return $ case indent of
+          traceShow (acp, indAdd, indAdd') $ return $ case indent of
             BrIndentNone -> r
             BrIndentRegular ->   reWrap $ BDFAddBaseY (BrIndentSpecial indAdd') r
             BrIndentSpecial i -> reWrap $ BDFAddBaseY (BrIndentSpecial i) r
