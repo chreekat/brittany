@@ -147,7 +147,10 @@ layoutExpr lexpr@(L _ expr) = do
         --   x
         --   y
         addAlternative
-          $ docSetParSpacing
+          -- This is definitely one I want to remove. However, it legitimately
+          -- breaks some tests (5,8, plus context-free dupes), and makes what I
+          -- would consider a subjective decision on (3).
+          $ docSetParSpacing -- BTR
           $ docAddBaseY BrIndentRegular
           $ docPar
             (docForceSingleline headDoc)
@@ -180,7 +183,7 @@ layoutExpr lexpr@(L _ expr) = do
           -- func if x
           --   then 1
           --   else 2
-          docSetParSpacing
+          docSetParSpacing -- Removing this broke no tests! BTR
         $ docAddBaseY BrIndentRegular
         $ docSeq
           [ appSep $ docForceSingleline expDoc1
@@ -188,7 +191,25 @@ layoutExpr lexpr@(L _ expr) = do
           ]
         , -- func
           --   arg
-          docSetParSpacing
+
+          -- This one is mixed. It requires a change to (1) and related tests,
+          -- because a hanging `<-` at the end of the line is atrocious. It
+          -- could be perhaps be fixed introduing a layout like the
+          -- highly-subjective following (which looks better with 4-space
+          -- indent):
+          --
+          --     rel1 :: Maybe (Either Int (Ratio Int))
+          --     <- optionMaybe
+          --       [ case divPart of
+          --           Nothing -> Left $ Text.Read.read digits
+          --           Just ddigits ->
+          --           Right $ Text.Read.read digits % Text.Read.read ddigits
+          --       | digits  <- many1 digit
+          --       , divPart <- optionMaybe (string "/" *> many1 digit)
+          --       ]
+          --
+          -- Otherwise, it makes good changes, like (2)
+          docSetParSpacing -- BTR
         $ docAddBaseY BrIndentRegular
         $ docPar
           (docForceSingleline expDoc1)
@@ -638,14 +659,19 @@ layoutExpr lexpr@(L _ expr) = do
         _ -> docSeq [appSep $ docLit $ Text.pack "let in", expDoc1]
     HsDo DoExpr (L _ stmts) _ -> do
       stmtDocs <- docSharedWrapper layoutStmt `mapM` stmts
-      docSetParSpacing
+      -- Keep, by popular demand. Changing this could move towards chris done
+      -- style, but I don't think most Haskellers want it. E.g.
+      --         foo =
+      --           do buzz
+      --              bazz
+      docSetParSpacing -- BTR
         $ docAddBaseY BrIndentRegular
         $ docPar
             (docLit $ Text.pack "do")
             (docSetBaseAndIndent $ docNonBottomSpacing $ docLines stmtDocs)
     HsDo MDoExpr (L _ stmts) _ -> do
       stmtDocs <- docSharedWrapper layoutStmt `mapM` stmts
-      docSetParSpacing
+      docSetParSpacing -- Breaks no tests! Probably similar to `HsDo DoExpr`? BTR
         $ docAddBaseY BrIndentRegular
         $ docPar
             (docLit $ Text.pack "mdo")
@@ -834,7 +860,9 @@ layoutExpr lexpr@(L _ expr) = do
         ++ join (lineR docForceSingleline)
         ++ lineDot
         ++ lineN
-        , docSetParSpacing
+        -- No effect on tests! But I probably don't want to remove it, just like
+        -- for the other RecordCon. The brackets make removal redundant.
+        , docSetParSpacing -- BTR
         $ docAddBaseY BrIndentRegular
         $ docPar
             (docNodeAnnKW lexpr Nothing nameDoc)
@@ -918,7 +946,13 @@ layoutExpr lexpr@(L _ expr) = do
         --     multiline
         -- }
         addAlternative
-          $ docSetParSpacing
+          -- This one causes confusing changes. I think I want to remove it, but
+          -- it may be causing some other poor behavior to be expressed. Plus,
+          -- most the tests that break here would be chided by hlint. The
+          -- following are equivalent:
+          --                   f b { x = y }              (1)
+          --                   f $ b { x = y }            (2)
+          $ docSetParSpacing -- BTR
           $ docAddBaseY BrIndentRegular
           $ docPar
               (docNodeAnnKW lexpr Nothing rExprDoc)
