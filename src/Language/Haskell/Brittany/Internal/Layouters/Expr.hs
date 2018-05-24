@@ -636,7 +636,6 @@ layoutExpr lexpr@(L _ expr) = do
               (docSetBaseY $ expDoc1)
             ]
         _ -> docSeq [appSep $ docLit $ Text.pack "let in", expDoc1]
-      -- docSeq [appSep $ docLit "let in", expDoc1]
     HsDo DoExpr (L _ stmts) _ -> do
       stmtDocs <- docSharedWrapper layoutStmt `mapM` stmts
       docSetParSpacing

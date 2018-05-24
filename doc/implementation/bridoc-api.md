@@ -334,7 +334,7 @@ will not be considered, and this will be effectively simplified to just
 
 - docSetParSpacing and docForceParSpacing
 
-  We say a node has "ParSpacing" if it looks like a `docPar` result.. it has
+  We say a node has "ParSpacing" if it looks like a `docPar` result: it has
   a headline and (indented) content in new lines. This property can propagate
   somewhat non-trivially upwards and is used by certain parents. It mainly
   provides nice layouting choices in cases such as:
@@ -369,7 +369,7 @@ will not be considered, and this will be effectively simplified to just
   has_par_spacing(docAddBaseY(x)) :- has_par_spacing(x).
   ~~~~
 
-  and so on for other simple unary wrappers. (i hope my sloppy prolog is not
+  and so on for other simple unary wrappers. (I hope my sloppy prolog is not
   too confusing.)
 
 - docForceSingleline
